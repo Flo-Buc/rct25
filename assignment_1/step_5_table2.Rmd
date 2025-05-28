@@ -16,7 +16,7 @@ library(officer)
 library(flextable)
 
 # Load data ------------------------------------------------------------------
-df <- readRDS("~/github/rct25/data/generated/Orbis_Berlin_Data/orbis_panel_berlin.rds")
+df <- readRDS("/workspaces/rct25/data/generated/Orbis_Berlin_Data/orbis_panel_berlin.rds")
 
 # Prepare data ---------------------------------------------------------------
 df <- df %>%
