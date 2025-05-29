@@ -154,13 +154,17 @@ doc_table <- flextable(results_table) %>%
   ) %>%
   autofit() %>%
   fontsize(size = 10, part = "all") %>%
-  font(fontname = "Times New Roman", part = "all") %>%
+  font(fontname = "Arial", part = "all") %>%
   align(align = "center", part = "all") %>%
   bold(part = "header") %>%
   border_remove() %>%
   border_outer(part = "all", border = fp_border(color = "black", width = 1)) %>%
-  border_inner_h(part = "all", border = fp_border(color = "gray", width = 0.5)) %>%
-  border_inner_v(part = "all", border = fp_border(color = "gray", width = 0.5))
+  hline_top(part = "all", border = fp_border(color = "black", width = 1)) %>%
+  hline_bottom(part = "all", border = fp_border(color = "black", width = 1)) %>%
+  hline(i = 1, border = fp_border(color = "black", width = 1))
+
+
+
 
 doc <- read_docx() %>%
   body_add_par("Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms", style = "heading 1") %>%
