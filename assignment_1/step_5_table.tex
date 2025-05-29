@@ -1,0 +1,268 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Berlin Firms Comparison},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Berlin Firms Comparison}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{load-required-libraries--}{%
+\section{Load required libraries
+----------------------------------------------------}\label{load-required-libraries--}}
+
+library(tidyverse) library(gt) library(scales)
+
+\hypertarget{load-data}{%
+\section{Load data
+------------------------------------------------------------------}\label{load-data}}
+
+df \textless-
+readRDS(``/workspaces/rct25/data/generated/Orbis\_Berlin\_Data/orbis\_panel\_berlin.rds'')
+
+\hypertarget{ensure-df-is-a-data.frame}{%
+\section{Ensure df is a data.frame
+--------------------------------------------------}\label{ensure-df-is-a-data.frame}}
+
+stopifnot(is.data.frame(df))
+
+\hypertarget{prepare-data}{%
+\section{Prepare data
+---------------------------------------------------------------}\label{prepare-data}}
+
+df \textless- df \%\textgreater\% filter(city\_native == ``Berlin'')
+\%\textgreater\% mutate( total\_assets = toas, equity\_ratio = shfd /
+toas, log\_total\_assets = log1p(toas), group = if\_else(postcode ==
+10437, ``Postal Code 10437'', ``Other Berlin Firms'') ) \%\textgreater\%
+filter(!is.na(total\_assets), !is.na(equity\_ratio))
+
+\hypertarget{count-original-sample-size--}{%
+\section{Count original sample size
+-------------------------------------------------}\label{count-original-sample-size--}}
+
+n\_total\_original \textless- nrow(df)
+
+\hypertarget{clean-data-remove-very-small-total-assets}{%
+\section{Clean data: remove very small total assets
+---------------------------------}\label{clean-data-remove-very-small-total-assets}}
+
+df \textless- df \%\textgreater\% filter(total\_assets \textgreater=
+1000) n\_removed\_assets \textless- n\_total\_original - nrow(df)
+
+\hypertarget{summary-statistics}{%
+\section{Summary statistics
+---------------------------------------------------------}\label{summary-statistics}}
+
+summary\_stats \textless- df \%\textgreater\% group\_by(group)
+\%\textgreater\% summarise( Mean\_Total\_Assets = mean(total\_assets,
+na.rm = TRUE), SD\_Total\_Assets = sd(total\_assets, na.rm = TRUE),
+Mean\_Equity\_Ratio = mean(equity\_ratio, na.rm = TRUE),
+Median\_Equity\_Ratio = median(equity\_ratio, na.rm = TRUE),
+SD\_Equity\_Ratio = sd(equity\_ratio, na.rm = TRUE), n = n(), .groups =
+``drop'' )
+
+\hypertarget{extract-values-explicitly-by-group}{%
+\section{Extract values explicitly by group
+-----------------------------------------}\label{extract-values-explicitly-by-group}}
+
+get\_stat \textless- function(var, group\_name) summary\_stats
+\%\textgreater\% filter(group == group\_name) \%\textgreater\% pull(\{\{
+var \}\})
+
+mean\_total\_assets\_10437 \textless- get\_stat(Mean\_Total\_Assets,
+``Postal Code 10437'') mean\_total\_assets\_other \textless-
+get\_stat(Mean\_Total\_Assets, ``Other Berlin Firms'')
+
+mean\_equity\_ratio\_10437 \textless- get\_stat(Mean\_Equity\_Ratio,
+``Postal Code 10437'') mean\_equity\_ratio\_other \textless-
+get\_stat(Mean\_Equity\_Ratio, ``Other Berlin Firms'')
+
+median\_equity\_ratio\_10437 \textless- get\_stat(Median\_Equity\_Ratio,
+``Postal Code 10437'') median\_equity\_ratio\_other \textless-
+get\_stat(Median\_Equity\_Ratio, ``Other Berlin Firms'')
+
+sd\_equity\_ratio\_10437 \textless- get\_stat(SD\_Equity\_Ratio,
+``Postal Code 10437'') sd\_equity\_ratio\_other \textless-
+get\_stat(SD\_Equity\_Ratio, ``Other Berlin Firms'')
+
+sd\_total\_assets\_10437 \textless- get\_stat(SD\_Total\_Assets,
+``Postal Code 10437'') sd\_total\_assets\_other \textless-
+get\_stat(SD\_Total\_Assets, ``Other Berlin Firms'')
+
+n\_10437 \textless- get\_stat(n, ``Postal Code 10437'') n\_other
+\textless- get\_stat(n, ``Other Berlin Firms'')
+
+\hypertarget{statistical-tests--}{%
+\section{Statistical tests
+----------------------------------------------------------}\label{statistical-tests--}}
+
+t\_total\_assets \textless- t.test(total\_assets \textasciitilde{}
+group, data = df, var.equal = FALSE) t\_equity\_ratio \textless-
+t.test(equity\_ratio \textasciitilde{} group, data = df, var.equal =
+FALSE) t\_sd\_equity\_ratio \textless- t.test(df\(equity_ratio[df\)group
+== ``Postal Code 10437''{]}, df\(equity_ratio[df\)group != ``Postal Code
+10437''{]}, var.equal = FALSE) t\_sd\_total\_assets \textless-
+t.test(df\(total_assets[df\)group == ``Postal Code 10437''{]},
+df\(total_assets[df\)group != ``Postal Code 10437''{]}, var.equal =
+FALSE) t\_median\_equity\_ratio \textless- wilcox.test(equity\_ratio
+\textasciitilde{} group, data = df)
+
+\hypertarget{create-results-table--}{%
+\section{Create results table
+-------------------------------------------------------}\label{create-results-table--}}
+
+results\_table \textless- tibble( \texttt{Postal\ Code\ 10437} = c(
+mean\_total\_assets\_10437, sd\_total\_assets\_10437,
+mean\_equity\_ratio\_10437, median\_equity\_ratio\_10437,
+sd\_equity\_ratio\_10437, n\_10437 ), \texttt{Other\ Berlin\ Firms} = c(
+mean\_total\_assets\_other, sd\_total\_assets\_other,
+mean\_equity\_ratio\_other, median\_equity\_ratio\_other,
+sd\_equity\_ratio\_other, n\_other ), Difference = c(
+mean\_total\_assets\_10437 - mean\_total\_assets\_other,
+sd\_total\_assets\_10437 - sd\_total\_assets\_other,
+mean\_equity\_ratio\_10437 - mean\_equity\_ratio\_other,
+median\_equity\_ratio\_10437 - median\_equity\_ratio\_other,
+sd\_equity\_ratio\_10437 - sd\_equity\_ratio\_other, NA ),
+\texttt{P-Value} = c(
+t\_total\_assets\(p.value,  t_sd_total_assets\)p.value,
+t\_equity\_ratio\(p.value,  t_median_equity_ratio\)p.value,
+t\_sd\_equity\_ratio\(p.value,  NA  ),  Significance = c(  case_when(t_total_assets\)p.value
+\textless{} 0.01 \textasciitilde{} ``\textbf{\emph{'',
+t\_total\_assets\(p.value < 0.05 ~ "**", t_total_assets\)p.value
+\textless{} 0.1 \textasciitilde{} ''}'', TRUE \textasciitilde{} ''\,''),
+case\_when(t\_sd\_total\_assets\(p.value < 0.01 ~ "***", t_sd_total_assets\)p.value
+\textless{} 0.05 \textasciitilde{} ''}'',
+t\_sd\_total\_assets\(p.value < 0.1 ~ "*", TRUE ~ ""),  case_when(t_equity_ratio\)p.value
+\textless{} 0.01 \textasciitilde{} ``\textbf{\emph{'',
+t\_equity\_ratio\(p.value < 0.05 ~ "**", t_equity_ratio\)p.value
+\textless{} 0.1 \textasciitilde{} ''}'', TRUE \textasciitilde{} ''\,''),
+case\_when(t\_median\_equity\_ratio\(p.value < 0.01 ~ "***", t_median_equity_ratio\)p.value
+\textless{} 0.05 \textasciitilde{} ''}'',
+t\_median\_equity\_ratio\(p.value < 0.1 ~ "*", TRUE ~ ""),  case_when(t_sd_equity_ratio\)p.value
+\textless{} 0.01 \textasciitilde{} ``**\emph{``,
+t\_sd\_equity\_ratio\(p.value < 0.05 ~ "**", t_sd_equity_ratio\)p.value
+\textless{} 0.1 \textasciitilde{}''}'', TRUE \textasciitilde{}
+````),'''' ) )
+
+\hypertarget{format-results--}{%
+\section{Format results
+-------------------------------------------------------------}\label{format-results--}}
+
+results\_table\_formatted \textless- results\_table \%\textgreater\%
+mutate( rowname = c( ``Total Assets (Mean)'', ``Total Assets (SD)'',
+``Equity Ratio (Mean)'', ``Equity Ratio (Median)'', ``Equity Ratio
+(SD)'', ``Number of Firms (N)'' ), \texttt{Postal\ Code\ 10437} =
+case\_when( str\_detect(rowname, ``Equity'') \textasciitilde{}
+formatC(100 * as.numeric(\texttt{Postal\ Code\ 10437}), format = ``f'',
+digits = 2, big.mark = ``.'', decimal.mark = ``,'') \%\textgreater\%
+paste0(``\%''), str\_detect(rowname, ``Total\textbar Firms'')
+\textasciitilde{} format(round(as.numeric(\texttt{Postal\ Code\ 10437}),
+0), big.mark = ``.'', decimal.mark = ``,'', scientific = FALSE), TRUE
+\textasciitilde{} as.character(\texttt{Postal\ Code\ 10437}) ),
+\texttt{Other\ Berlin\ Firms} = case\_when( str\_detect(rowname,
+``Equity'') \textasciitilde{} formatC(100 *
+as.numeric(\texttt{Other\ Berlin\ Firms}), format = ``f'', digits = 2,
+big.mark = ``.'', decimal.mark = ``,'') \%\textgreater\% paste0(``\%''),
+str\_detect(rowname, ``Total\textbar Firms'') \textasciitilde{}
+format(round(as.numeric(\texttt{Other\ Berlin\ Firms}), 0), big.mark =
+``.'', decimal.mark = ``,'', scientific = FALSE), TRUE \textasciitilde{}
+as.character(\texttt{Other\ Berlin\ Firms}) ), Difference = case\_when(
+str\_detect(rowname, ``Equity'') \textasciitilde{} formatC(100 *
+as.numeric(Difference), format = ``f'', digits = 2, big.mark = ``.'',
+decimal.mark = ``,'') \%\textgreater\% paste0(``\%''),
+str\_detect(rowname, ``Total\textbar Firms'') \textasciitilde{}
+format(round(as.numeric(Difference), 0), big.mark = ``.'', decimal.mark
+= ``,'', scientific = FALSE), TRUE \textasciitilde{}
+as.character(Difference) ), \texttt{P-Value} = case\_when(
+is.na(\texttt{P-Value}) \textasciitilde{} ````, \texttt{P-Value}
+\textless{} 0.001 \textasciitilde{}''\textless0.001'', TRUE
+\textasciitilde{} formatC(\texttt{P-Value}, format = ``f'', digits = 3,
+decimal.mark = ``,'') ) )
+
+\hypertarget{create-gt-table}{%
+\section{Create gt table
+------------------------------------------------------------}\label{create-gt-table}}
+
+gt\_table \textless- results\_table\_formatted \%\textgreater\%
+gt(rowname\_col = ``rowname'') \%\textgreater\% tab\_header( title =
+``Comparison of Firms in Postal Code 10437 vs.~Other Berlin Firms'',
+subtitle = ``Total Assets and Equity Ratios (Most Recent Year)'' )
+\%\textgreater\% cols\_label( \texttt{Postal\ Code\ 10437} = ``Postal
+Code 10437'', \texttt{Other\ Berlin\ Firms} = ``Other Berlin Firms'',
+Difference = ``Difference'', \texttt{P-Value} = ``P-Value'',
+Significance = ``Signif.'' ) \%\textgreater\% cols\_align(align =
+``center'') \%\textgreater\% tab\_source\_note( source\_note = paste0(
+``Note: Total assets in EUR. Equity ratio = Equity / Total Assets.'',
+``P-values from Welch's t-test (means, SDs) and Wilcoxon rank-sum test
+(medians).'', ``Significance levels: * p\textless0.1, ** p\textless0.05,
+*** p\textless0.01.'', ``N = number of firms per group. All p-values
+\textless0.001 reported as \textless0.001.'', ``Sample restricted to
+Berlin firms with total assets ≥ 1,000 EUR ('', n\_removed\_assets, ''
+excluded).'' ) )
+
+\end{document}
