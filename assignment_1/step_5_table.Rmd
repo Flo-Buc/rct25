@@ -1,21 +1,18 @@
 ---
-title: "Berlin Firms Comparison"
-output: 
-  pdf_document:
-    keep_tex: true
+title: "Berlin Firms Comparison - Table"
+output:
+  word_document:
     toc: false
     number_sections: false
-    latex_engine: xelatex
-    df_print: "default"
+    df_print: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 # Load required libraries
 library(tidyverse)
-library(gt)
-library(scales)
+library(knitr)
 
 # Load data
 df <- readRDS("/workspaces/rct25/data/generated/Orbis_Berlin_Data/orbis_panel_berlin.rds")
@@ -72,9 +69,19 @@ t_equity_ratio <- t.test(equity_ratio ~ group, data = df)
 t_sd_equity_ratio <- t.test(df$equity_ratio[df$group == "Postal Code 10437"], df$equity_ratio[df$group != "Postal Code 10437"])
 t_sd_total_assets <- t.test(df$total_assets[df$group == "Postal Code 10437"], df$total_assets[df$group != "Postal Code 10437"])
 t_median_equity_ratio <- wilcox.test(equity_ratio ~ group, data = df)
+```
 
+```{r table-only, echo=FALSE, message=FALSE, warning=FALSE}
 # Results table
 results_table <- tibble(
+  rowname = c(
+    "Total Assets (Mean)",
+    "Total Assets (SD)",
+    "Equity Ratio (Mean)",
+    "Equity Ratio (Median)",
+    "Equity Ratio (SD)",
+    "Number of Firms (N)"
+  ),
   `Postal Code 10437` = c(
     mean_total_assets_10437,
     sd_total_assets_10437,
@@ -117,63 +124,22 @@ results_table <- tibble(
   )
 )
 
-# Format table
-table_output <- results_table %>%
+# Format numbers
+results_table <- results_table %>%
   mutate(
-    rowname = c(
-      "Total Assets (Mean)",
-      "Total Assets (SD)",
-      "Equity Ratio (Mean)",
-      "Equity Ratio (Median)",
-      "Equity Ratio (SD)",
-      "Number of Firms (N)"
-    ),
-    `Postal Code 10437` = case_when(
-      str_detect(rowname, "Equity") ~ paste0(formatC(100 * as.numeric(`Postal Code 10437`), format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
-      TRUE ~ format(as.numeric(`Postal Code 10437`), big.mark = ".", decimal.mark = ",", scientific = FALSE)
-    ),
-    `Other Berlin Firms` = case_when(
-      str_detect(rowname, "Equity") ~ paste0(formatC(100 * as.numeric(`Other Berlin Firms`), format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
-      TRUE ~ format(as.numeric(`Other Berlin Firms`), big.mark = ".", decimal.mark = ",", scientific = FALSE)
-    ),
-    Difference = case_when(
-      str_detect(rowname, "Equity") ~ paste0(formatC(100 * as.numeric(Difference), format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
-      TRUE ~ format(as.numeric(Difference), big.mark = ".", decimal.mark = ",", scientific = FALSE)
+    across(c(`Postal Code 10437`, `Other Berlin Firms`, Difference), ~
+      case_when(
+        str_detect(rowname, "Equity") ~ paste0(formatC(100 * ., format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
+        TRUE ~ formatC(., format = "f", big.mark = ".", decimal.mark = ",", digits = 0)
+      )
     ),
     `P-Value` = case_when(
       is.na(`P-Value`) ~ "",
       `P-Value` < 0.001 ~ "<0.001",
       TRUE ~ formatC(`P-Value`, format = "f", digits = 3, decimal.mark = ",")
     )
-  ) %>%
-  select(rowname, everything())
-
-# Create and display gt table
-library(gt)
-gt_tbl <- table_output %>%
-  gt(rowname_col = "rowname") %>%
-  tab_header(
-    title = "Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms",
-    subtitle = "Total Assets and Equity Ratios (Most Recent Year)"
-  ) %>%
-  cols_label(
-    `Postal Code 10437` = "Postal Code 10437",
-    `Other Berlin Firms` = "Other Berlin Firms",
-    Difference = "Difference",
-    `P-Value` = "P-Value",
-    Significance = "Signif."
-  ) %>%
-  cols_align(align = "center") %>%
-  tab_source_note(
-    source_note = paste0(
-      "Note: Total assets in EUR. Equity ratio = Equity / Total Assets. ",
-      "P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
-      "Significance: * p<0.1, ** p<0.05, *** p<0.01. ",
-      "Sample restricted to Berlin firms with total assets >= 1,000 EUR (", 
-      n_removed_assets, " excluded)."
-    )
   )
 
-# Render table to R Markdown
-print(gt_tbl)
+# Print using kable only
+kable(results_table, format = "markdown", align = "c", caption = "Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms")
 ```
