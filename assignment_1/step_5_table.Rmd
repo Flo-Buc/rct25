@@ -142,7 +142,7 @@ results_table <- results_table %>%
   rename(`Signif.` = Significance) %>%
   select(rowname, `Postal Code 10437`, `Other Berlin Firms`, Difference, `P-Value`, `Signif.`)
 
-# Create styled flextable and export to Word
+# Create flextable and export to Word
 doc_table <- flextable(results_table) %>%
   set_header_labels(
     rowname = "",
@@ -152,16 +152,7 @@ doc_table <- flextable(results_table) %>%
     `P-Value` = "P-Value",
     `Signif.` = "Signif."
   ) %>%
-  autofit() %>%
-  fontsize(size = 10, part = "all") %>%
-  font(fontname = "Cambria", part = "all") %>%
-  align(align = "center", part = "all") %>%
-  bold(part = "header") %>%
-  border_remove() %>%
-  hline_top(part = "all", border = fp_border(color = "black", width = 1)) %>%
-  hline_bottom(part = "all", border = fp_border(color = "black", width = 1)) %>%
-  hline(i = 1, border = fp_border(color = "black", width = 1))
-
+  autofit()
 
 doc <- read_docx() %>%
   body_add_par("Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms", style = "heading 1") %>%
