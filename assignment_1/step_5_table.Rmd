@@ -178,6 +178,6 @@ gt_table <- results_table_formatted %>%
     "P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
     "Significance levels: * p<0.1, ** p<0.05, *** p<0.01. ",
     "N = number of firms per group. All p-values <0.001 reported as <0.001. ",
-    "Sample restricted to Berlin firms with total assets ≥ 1,000 EUR (", n_removed_assets, " excluded)."
+    "Sample restricted to Berlin firms with total assets $\\geq$ 1,000 EUR (", n_removed_assets, " excluded)."
   )
 )
