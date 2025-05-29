@@ -153,14 +153,14 @@ doc_table <- flextable(results_table) %>%
     `Signif.` = "Signif."
   ) %>%
   autofit() %>%
-  fontsize(size = 10, part = "all") %>%
+  fontsize(size = 12, part = "all") %>%
   font(fontname = "Calibri", part = "all") %>%
   align(align = "center", part = "all") %>%
   bold(part = "header") %>%
   border_remove() %>%
   hline_top(part = "all", border = fp_border(color = "black", width = 1)) %>%
   hline_bottom(part = "all", border = fp_border(color = "black", width = 1)) %>%
-  fontsize(i = nrow(results_table), size = 10, part = "body")
+  fontsize(i = nrow(results_table), size = 12, part = "body")
 
 # Export to Word
 doc <- read_docx() %>%
