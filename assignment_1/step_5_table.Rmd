@@ -138,17 +138,27 @@ results_table <- results_table %>%
       `P-Value` < 0.001 ~ "<0.001",
       TRUE ~ formatC(`P-Value`, format = "f", digits = 3, decimal.mark = ",")
     )
-  )
+  ) %>%
+  rename(`Signif.` = Significance) %>%
+  select(rowname, `Postal Code 10437`, `Other Berlin Firms`, Difference, `P-Value`, `Signif.`)
 
 # Create flextable and export to Word
-doc_table <- flextable(results_table %>% select(-Significance)) %>%
+doc_table <- flextable(results_table) %>%
+  set_header_labels(
+    rowname = "",
+    `Postal Code 10437` = "Postal Code 10437",
+    `Other Berlin Firms` = "Other Berlin Firms",
+    Difference = "Difference",
+    `P-Value` = "P-Value",
+    `Signif.` = "Signif."
+  ) %>%
   autofit()
 
 doc <- read_docx() %>%
   body_add_par("Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms", style = "heading 1") %>%
   body_add_par("Total Assets and Equity Ratios (Most Recent Year)", style = "heading 2") %>%
   body_add_flextable(doc_table) %>%
-  body_add_par("Note: Total Assets in EUR. Equity Ratio = Equity / Total Assets. P-values from Welch's t-test (for means and SDs) and Wilcoxon rank-sum test (for medians). Significance levels: * p<0.1, ** p<0.05, *** p<0.01. N refers to the number of firms in each group. All p-values <0.001 are reported as <0.001.")
+  body_add_par("Note: Total assets in EUR. Equity ratio = Equity / Total Assets. P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). Significance levels: * p<0.1, ** p<0.05, *** p<0.01. N = number of firms per group. All p-values <0.001 reported as <0.001. Sample restricted to Berlin firms with total assets ≥ 1,000 EUR (6765 excluded).")
 
 print(doc, target = "firm_comparison_table.docx")
 ```
