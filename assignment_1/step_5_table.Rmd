@@ -161,20 +161,24 @@ doc_table <- flextable(results_table) %>%
   hline_top(part = "all", border = fp_border(color = "black", width = 1)) %>%
   hline_bottom(part = "all", border = fp_border(color = "black", width = 1))
 
+note_text <- paste0(
+  "Note: Total assets in EUR. Equity ratio = Equity / Total Assets. ",
+  "P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
+  "Significance levels: * p<0.1, ** p<0.05, *** p<0.01. ",
+  "N = number of firms per group. All p-values <0.001 reported as <0.001. ",
+  "Sample restricted to Berlin firms with total assets ≥ 1,000 EUR (",
+  n_removed_assets,
+  " excluded)."
+)
+
+note_fpar <- fpar(ftext(note_text, fp_text(font.size = 11, font.family = "Calibri")), fp_p = fp_par(text.align = "justify"))
+
 # Export to Word
 doc <- read_docx() %>%
   body_add_par("Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms", style = "heading 1") %>%
   body_add_par("Total Assets and Equity Ratios (Most Recent Year)", style = "heading 2") %>%
   body_add_flextable(doc_table) %>%
-  body_add_par(paste0(
-    "Note: Total assets in EUR. Equity ratio = Equity / Total Assets. ",
-    "P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
-    "Significance levels: * p<0.1, ** p<0.05, *** p<0.01. ",
-    "N = number of firms per group. All p-values <0.001 reported as <0.001. ",
-    "Sample restricted to Berlin firms with total assets ≥ 1,000 EUR (",
-    n_removed_assets,
-    " excluded)."
-  ), style = "Normal")
+  body_add_fpar(note_fpar)
 
 print(doc, target = "firm_comparison_table.docx")
 ```
