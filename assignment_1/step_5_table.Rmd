@@ -1,27 +1,28 @@
 ---
 title: "Berlin Firms Comparison"
-output: pdf_document
-editor_options: 
-  markdown: 
-    wrap: 72
+output: 
+  pdf_document:
+    keep_tex: true
+    toc: false
+    number_sections: false
+    latex_engine: xelatex
+    df_print: "default"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
-# Load required libraries ----------------------------------------------------
+# Load required libraries
 library(tidyverse)
 library(gt)
 library(scales)
 
-# Load data ------------------------------------------------------------------
+# Load data
 df <- readRDS("/workspaces/rct25/data/generated/Orbis_Berlin_Data/orbis_panel_berlin.rds")
 
-# Ensure df is a data.frame --------------------------------------------------
 stopifnot(is.data.frame(df))
 
-# Prepare data ---------------------------------------------------------------
+# Clean and prepare data
 df <- df %>%
   filter(city_native == "Berlin") %>%
   mutate(
@@ -32,14 +33,11 @@ df <- df %>%
   ) %>%
   filter(!is.na(total_assets), !is.na(equity_ratio))
 
-# Count original sample size -------------------------------------------------
 n_total_original <- nrow(df)
-
-# Clean data: remove very small total assets ---------------------------------
 df <- df %>% filter(total_assets >= 1000)
 n_removed_assets <- n_total_original - nrow(df)
 
-# Summary statistics ---------------------------------------------------------
+# Summary stats
 summary_stats <- df %>%
   group_by(group) %>%
   summarise(
@@ -52,35 +50,30 @@ summary_stats <- df %>%
     .groups = "drop"
   )
 
-# Extract values explicitly by group -----------------------------------------
 get_stat <- function(var, group_name) summary_stats %>% filter(group == group_name) %>% pull({{ var }})
 
+# Extract values
 mean_total_assets_10437 <- get_stat(Mean_Total_Assets, "Postal Code 10437")
 mean_total_assets_other <- get_stat(Mean_Total_Assets, "Other Berlin Firms")
-
 mean_equity_ratio_10437 <- get_stat(Mean_Equity_Ratio, "Postal Code 10437")
 mean_equity_ratio_other <- get_stat(Mean_Equity_Ratio, "Other Berlin Firms")
-
 median_equity_ratio_10437 <- get_stat(Median_Equity_Ratio, "Postal Code 10437")
 median_equity_ratio_other <- get_stat(Median_Equity_Ratio, "Other Berlin Firms")
-
 sd_equity_ratio_10437 <- get_stat(SD_Equity_Ratio, "Postal Code 10437")
 sd_equity_ratio_other <- get_stat(SD_Equity_Ratio, "Other Berlin Firms")
-
 sd_total_assets_10437 <- get_stat(SD_Total_Assets, "Postal Code 10437")
 sd_total_assets_other <- get_stat(SD_Total_Assets, "Other Berlin Firms")
-
 n_10437 <- get_stat(n, "Postal Code 10437")
 n_other <- get_stat(n, "Other Berlin Firms")
 
-# Statistical tests ----------------------------------------------------------
-t_total_assets <- t.test(total_assets ~ group, data = df, var.equal = FALSE)
-t_equity_ratio <- t.test(equity_ratio ~ group, data = df, var.equal = FALSE)
-t_sd_equity_ratio <- t.test(df$equity_ratio[df$group == "Postal Code 10437"], df$equity_ratio[df$group != "Postal Code 10437"], var.equal = FALSE)
-t_sd_total_assets <- t.test(df$total_assets[df$group == "Postal Code 10437"], df$total_assets[df$group != "Postal Code 10437"], var.equal = FALSE)
+# Statistical tests
+t_total_assets <- t.test(total_assets ~ group, data = df)
+t_equity_ratio <- t.test(equity_ratio ~ group, data = df)
+t_sd_equity_ratio <- t.test(df$equity_ratio[df$group == "Postal Code 10437"], df$equity_ratio[df$group != "Postal Code 10437"])
+t_sd_total_assets <- t.test(df$total_assets[df$group == "Postal Code 10437"], df$total_assets[df$group != "Postal Code 10437"])
 t_median_equity_ratio <- wilcox.test(equity_ratio ~ group, data = df)
 
-# Create results table -------------------------------------------------------
+# Results table
 results_table <- tibble(
   `Postal Code 10437` = c(
     mean_total_assets_10437,
@@ -124,7 +117,7 @@ results_table <- tibble(
   )
 )
 
-# Format results -------------------------------------------------------------
+# Format table
 results_table_formatted <- results_table %>%
   mutate(
     rowname = c(
@@ -136,19 +129,16 @@ results_table_formatted <- results_table %>%
       "Number of Firms (N)"
     ),
     `Postal Code 10437` = case_when(
-      str_detect(rowname, "Equity") ~ formatC(100 * as.numeric(`Postal Code 10437`), format = "f", digits = 2, big.mark = ".", decimal.mark = ",") %>% paste0("%"),
-      str_detect(rowname, "Total|Firms") ~ format(round(as.numeric(`Postal Code 10437`), 0), big.mark = ".", decimal.mark = ",", scientific = FALSE),
-      TRUE ~ as.character(`Postal Code 10437`)
+      str_detect(rowname, "Equity") ~ paste0(formatC(100 * as.numeric(`Postal Code 10437`), format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
+      TRUE ~ format(as.numeric(`Postal Code 10437`), big.mark = ".", decimal.mark = ",", scientific = FALSE)
     ),
     `Other Berlin Firms` = case_when(
-      str_detect(rowname, "Equity") ~ formatC(100 * as.numeric(`Other Berlin Firms`), format = "f", digits = 2, big.mark = ".", decimal.mark = ",") %>% paste0("%"),
-      str_detect(rowname, "Total|Firms") ~ format(round(as.numeric(`Other Berlin Firms`), 0), big.mark = ".", decimal.mark = ",", scientific = FALSE),
-      TRUE ~ as.character(`Other Berlin Firms`)
+      str_detect(rowname, "Equity") ~ paste0(formatC(100 * as.numeric(`Other Berlin Firms`), format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
+      TRUE ~ format(as.numeric(`Other Berlin Firms`), big.mark = ".", decimal.mark = ",", scientific = FALSE)
     ),
     Difference = case_when(
-      str_detect(rowname, "Equity") ~ formatC(100 * as.numeric(Difference), format = "f", digits = 2, big.mark = ".", decimal.mark = ",") %>% paste0("%"),
-      str_detect(rowname, "Total|Firms") ~ format(round(as.numeric(Difference), 0), big.mark = ".", decimal.mark = ",", scientific = FALSE),
-      TRUE ~ as.character(Difference)
+      str_detect(rowname, "Equity") ~ paste0(formatC(100 * as.numeric(Difference), format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
+      TRUE ~ format(as.numeric(Difference), big.mark = ".", decimal.mark = ",", scientific = FALSE)
     ),
     `P-Value` = case_when(
       is.na(`P-Value`) ~ "",
@@ -157,8 +147,8 @@ results_table_formatted <- results_table %>%
     )
   )
 
-# Create gt table ------------------------------------------------------------
-gt_table <- results_table_formatted %>%
+# Print gt table directly to PDF
+results_table_formatted %>%
   gt(rowname_col = "rowname") %>%
   tab_header(
     title = "Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms",
@@ -173,11 +163,11 @@ gt_table <- results_table_formatted %>%
   ) %>%
   cols_align(align = "center") %>%
   tab_source_note(
-  source_note = paste0(
-    "Note: Total assets in EUR. Equity ratio = Equity / Total Assets. ",
-    "P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
-    "Significance levels: * p<0.1, ** p<0.05, *** p<0.01. ",
-    "N = number of firms per group. All p-values <0.001 reported as <0.001. ",
-    "Sample restricted to Berlin firms with total assets $\\geq$ 1,000 EUR (", n_removed_assets, " excluded)."
+    source_note = paste0(
+      "Note: Total assets in EUR. Equity ratio = Equity / Total Assets. ",
+      "P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
+      "Significance: * p<0.1, ** p<0.05, *** p<0.01. ",
+      "Sample restricted to Berlin firms with total assets >= 1,000 EUR (", 
+      n_removed_assets, " excluded)."
+    )
   )
-)
