@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 # Load required libraries
 library(tidyverse)
 library(knitr)
+library(officer)
+library(flextable)
 
 # Load data
 df <- readRDS("/workspaces/rct25/data/generated/Orbis_Berlin_Data/orbis_panel_berlin.rds")
@@ -127,8 +129,8 @@ results_table <- results_table %>%
   mutate(
     across(c(`Postal Code 10437`, `Other Berlin Firms`, Difference), ~
       case_when(
-        str_detect(rowname, "Equity") ~ paste0(formatC(100 * ., format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
-        TRUE ~ formatC(., format = "f", big.mark = ".", decimal.mark = ",", digits = 0)
+        str_detect(rowname, "Equity") ~ paste0(formatC(100 * as.numeric(.), format = "f", digits = 2, big.mark = ".", decimal.mark = ","), "%"),
+        TRUE ~ formatC(as.numeric(.), format = "f", big.mark = ".", decimal.mark = ",", digits = 0)
       )
     ),
     `P-Value` = case_when(
@@ -138,6 +140,15 @@ results_table <- results_table %>%
     )
   )
 
-# Print using kable only
-kable(results_table, format = "markdown", align = "c", caption = "Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms")
+# Create flextable and export to Word
+doc_table <- flextable(results_table %>% select(-Significance)) %>%
+  autofit()
+
+doc <- read_docx() %>%
+  body_add_par("Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms", style = "heading 1") %>%
+  body_add_par("Total Assets and Equity Ratios (Most Recent Year)", style = "heading 2") %>%
+  body_add_flextable(doc_table) %>%
+  body_add_par("Note: Total Assets in EUR. Equity Ratio = Equity / Total Assets. P-values from Welch's t-test (for means and SDs) and Wilcoxon rank-sum test (for medians). Significance levels: * p<0.1, ** p<0.05, *** p<0.01. N refers to the number of firms in each group. All p-values <0.001 are reported as <0.001.")
+
+print(doc, target = "firm_comparison_table.docx")
 ```
