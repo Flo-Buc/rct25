@@ -118,7 +118,7 @@ results_table <- tibble(
 )
 
 # Format table
-results_table_formatted <- results_table %>%
+table_output <- results_table %>%
   mutate(
     rowname = c(
       "Total Assets (Mean)",
@@ -145,10 +145,12 @@ results_table_formatted <- results_table %>%
       `P-Value` < 0.001 ~ "<0.001",
       TRUE ~ formatC(`P-Value`, format = "f", digits = 3, decimal.mark = ",")
     )
-  )
+  ) %>%
+  select(rowname, everything())
 
-# Print gt table directly to PDF
-results_table_formatted %>%
+# Create and display gt table
+library(gt)
+gt_tbl <- table_output %>%
   gt(rowname_col = "rowname") %>%
   tab_header(
     title = "Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms",
@@ -171,3 +173,7 @@ results_table_formatted %>%
       n_removed_assets, " excluded)."
     )
   )
+
+# Render table to R Markdown
+print(gt_tbl)
+```
