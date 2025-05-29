@@ -1,5 +1,5 @@
 ---
-  title: "Berlin Firms Comparison"
+title: "Berlin Firms Comparison"
 output: pdf_document
 editor_options: 
   markdown: 
@@ -7,25 +7,15 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE) 
-```
-
-\
-
-```{r}
-install.packages("webshot2")
-```
-
-```{r}
+knitr::opts_chunk$set(echo = TRUE)
 
 # Load required libraries ----------------------------------------------------
 library(tidyverse)
 library(gt)
 library(scales)
-library(webshot2)  # Required to save gt tables as images or PDFs
 
 # Load data ------------------------------------------------------------------
-df <- readRDS("~/github/rct25/data/generated/Orbis_Berlin_Data/orbis_panel_berlin.rds")
+df <- readRDS("/workspaces/rct25/data/generated/Orbis_Berlin_Data/orbis_panel_berlin.rds")
 
 # Ensure df is a data.frame --------------------------------------------------
 stopifnot(is.data.frame(df))
@@ -61,7 +51,7 @@ summary_stats <- df %>%
     .groups = "drop"
   )
 
-# Extract values explicitly by group ------------------------------------------
+# Extract values explicitly by group -----------------------------------------
 get_stat <- function(var, group_name) summary_stats %>% filter(group == group_name) %>% pull({{ var }})
 
 mean_total_assets_10437 <- get_stat(Mean_Total_Assets, "Postal Code 10437")
@@ -182,33 +172,11 @@ gt_table <- results_table_formatted %>%
   ) %>%
   cols_align(align = "center") %>%
   tab_source_note(
-    source_note = paste0(
-      "Note: Total assets in EUR. Equity ratio = Equity / Total Assets. P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
-      "Significance levels: * p<0.1, ** p<0.05, *** p<0.01. N = number of firms per group. All p-values <0.001 reported as <0.001. ",
-      "Sample restricted to Berlin firms with total assets ≥ 1,000 EUR (", n_removed_assets, " excluded)."
-    )
+  source_note = paste0(
+    "Note: Total assets in EUR. Equity ratio = Equity / Total Assets. ",
+    "P-values from Welch’s t-test (means, SDs) and Wilcoxon rank-sum test (medians). ",
+    "Significance levels: * p<0.1, ** p<0.05, *** p<0.01. ",
+    "N = number of firms per group. All p-values <0.001 reported as <0.001. ",
+    "Sample restricted to Berlin firms with total assets ≥ 1,000 EUR (", n_removed_assets, " excluded)."
   )
-
-gt_table
-
-# Save gt table as PDF --------------------------------------------------------
-gtsave(gt_table, filename = "berlin_firm_comparison_table.pdf")
-
-```
-
-```{r}
-library(ggplot2)
-library(dplyr)
-
-ggplot(df, aes(x = equity_ratio)) +
-  geom_histogram(binwidth = 0.05, fill = "#0073C2FF", color = "white") +
-  coord_cartesian(xlim = c(-2, 2)) +  # Adjust limits as needed
-  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(
-    title = "Equity Ratio Distribution (Zoomed In)",
-    x = "Equity Ratio",
-    y = "Number of Firms"
-  ) +
-  theme_minimal()
-
-```
+)
