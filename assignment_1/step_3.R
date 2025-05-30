@@ -5,7 +5,7 @@ orb_berlin <- readRDS("/workspaces/rct25/data/generated/Orbis_Berlin_Data/orbis_
 
 
 #########################################################
-# Checking only for the company which filed
+# Checking only for the company which filed 
 #########################################################
 
 

@@ -10,7 +10,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
-# Load required libraries
+# Load required libraries 
 library(tidyverse)
 library(knitr)
 library(officer)
