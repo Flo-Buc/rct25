@@ -1,10 +1,7 @@
 ---
 title: "Berlin Firms Comparison - Table"
-output:
-  word_document:
-    toc: false
-    number_sections: false
-    df_print: default
+output: 
+  word_document: null
 ---
 
 ```{r setup, include=FALSE}
