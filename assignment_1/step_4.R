@@ -3,7 +3,7 @@ orb_berlin <- readRDS("/workspaces/rct25/data/generated/Orbis_Berlin_Data/orbis_
 
 library(dplyr)
 
-
+ 
 
 # Filter the data for the specific postal code and year
 filtered_data_step4 <- orb_berlin %>%
