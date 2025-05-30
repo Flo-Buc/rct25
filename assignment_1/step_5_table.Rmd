@@ -151,6 +151,7 @@ doc_table <- flextable(results_table) %>%
   ) %>%
   autofit() %>%
   fontsize(size = 12, part = "body") %>%
+  fontsize(size = 12, part = "header") %>%
   font(fontname = "Calibri", part = "all") %>%
   align(align = "center", part = "all") %>%
   bold(j = "rowname", part = "body") %>%
