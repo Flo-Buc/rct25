@@ -165,7 +165,7 @@ gt_table <- results_table_formatted %>%
   gt(rowname_col = "rowname") %>%
   tab_header(
     title = "Comparison of Firms in Postal Code 10437 vs. Other Berlin Firms",
-    subtitle = "Total Assets and Equity Ratios (Most Recent Year)"
+    subtitle = "Total Assets and Equity Ratios"
   ) %>%
   cols_label(
     `Postal Code 10437` = "Postal Code 10437",
