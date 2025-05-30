@@ -1,5 +1,0 @@
----
-title: "research_log"
-format: html
----
-
