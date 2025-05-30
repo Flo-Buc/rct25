@@ -154,6 +154,7 @@ doc_table <- flextable(results_table) %>%
   font(fontname = "Calibri", part = "all") %>%
   align(align = "center", part = "all") %>%
   bold(part = "header") %>%
+  bold(j = "rowname", part = "body") %>%
   border_remove() %>%
   hline_top(part = "all", border = fp_border(color = "black", width = 1)) %>%
   hline_bottom(part = "all", border = fp_border(color = "black", width = 1))
