@@ -153,6 +153,7 @@ doc_table <- flextable(results_table) %>%
   fontsize(size = 12, part = "body") %>%
   font(fontname = "Calibri", part = "all") %>%
   align(align = "center", part = "all") %>%
+  bold(j = "rowname", part = "body") %>%
   bold(part = "header") %>%
   border_remove() %>%
   hline_top(part = "all", border = fp_border(color = "black", width = 1)) %>%
