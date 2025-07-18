@@ -17,7 +17,7 @@ The researchers explored this question through a two-study design. In the first 
  
 Figure 2 and Figure 3 illustrate the frequencies of the perceived accuracy ratings participants gave to fake and real headlines. Both figures include accuracy ratings in the form of a Likert scale going from 1 (not accurate at all) to 6 (extremely accurate). Figure 2 shows that people who reported feeling more emotional were significantly more likely to believe fake news headlines. This was true regardless of whether the emotions were positive or negative. Interestingly, emotions which are associated with careful thinking, such as being “interested”, “determined” and “attentive”, did not increase belief in misinformation. As shown in Figure 3, this effect was specific to fake news and had no influence on belief in real headlines. All three conditions had similar accuracy ratings for the news stories. This shows that emotions don’t generally impair judgment about truth, but they do make us more susceptible to misinformation.
 
-![Figure 2 and 3](Fig.2_3.png)
+![Figure 2 and 3](Fig.2_3.PNG)
   
 When participants were instructed to base their judgment on either emotion or reason, the results support the earlier findings. Participants who were asked to base their judgment on emotions were more likely to believe fake headlines more than the participants who were told to rely on reason. This shows that emotions are not a neutral factor in our decision process, but rather that they actively influence our beliefs.	
 
