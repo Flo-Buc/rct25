@@ -2,7 +2,7 @@
 title: Emotion vs. Truth - Why We Fall for Fake News
 author: Flo-Buc
 date: 2025-07-08
-summary: A short summary of your post that can be featured on the blog's content page (not more than 100 words)
+summary: The blog post explores how emotions influence our susceptibility to fake news. Research reveals that heightened emotional states, whether positive or negative, increase belief in false headlines, while analytical thinking helps discern truth. Experimenters found out that instructing people to rely on emotion leads to greater acceptance of misinformation, whereas reason-based judgments improve accuracy. These findings fit within the broader context of psychology and behavioral economics. The post underscores the importance of pausing to reflect before believing or sharing news, highlighting real-world consequences of misinformation.
 ---
 
 # Emotion vs. Truth - Why We Fall for Fake News
